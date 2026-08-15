@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手繪風社區活動地圖與社區資源卡製作系統 | Community Map Studio</title>
+  <meta name="description" content="互動式手繪風社區美食景點地圖、A6/B6雙面社區資源卡產生器與實體列印排版系統，支援田野踏查教學與無障礙友善環境盤點。">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="print.css">
+</head>
+<body>
+
+  <!-- ================= 頂部導覽列 ================= -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-badge">MAP STUDIO</div>
+      <h1 class="brand-title">
+        <span id="headerCommunityName">埔飛端・土庫旅行地圖</span>
+        <span class="community-tag" id="headerSubTag">手繪風社區資源庫</span>
+      </h1>
+    </div>
+
+    <!-- 視圖功能選單 -->
+    <nav class="nav-tabs" aria-label="功能選單">
+      <button class="nav-tab-btn active" data-view="map" id="tabMapBtn">
+        <span>🗺️</span> 互動地圖
+      </button>
+      <button class="nav-tab-btn" data-view="cards" id="tabCardsBtn">
+        <span>📇</span> 雙面資源卡
+      </button>
+      <button class="nav-tab-btn" data-view="print" id="tabPrintBtn">
+        <span>🖨️</span> 實體列印排版
+      </button>
+      <button class="nav-tab-btn" data-view="guide" id="tabGuideBtn">
+        <span>🎒</span> 踏查教學指引
+      </button>
+    </nav>
+
+    <!-- 右側操作按鈕 -->
+    <div class="header-actions">
+      <button class="btn-pill" id="btnSwitchCommunity" title="切換或建立新社區範本">
+        <span>🔄</span> 切換社區
+      </button>
+      <button class="btn-pill success" id="btnAddPoint" title="新增一個社區美食或景點點位">
+        <span>➕</span> 新增點位
+      </button>
+      <button class="btn-pill primary" id="btnQuickPrint" title="一鍵列印當前頁面">
+        <span>🖨️</span> 列印輸出
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= 視圖一：地圖與側欄主版面 ================= -->
+  <main class="main-container view-panel active" id="viewMap">
+    <!-- 地圖畫布檢視區 -->
+    <section class="map-viewport" aria-label="社區手繪地圖畫布">
+      
+      <!-- 浮動控制列 -->
+      <div class="map-floating-bar">
+        <div class="search-box-wrapper">
+          <span>🔍</span>
+          <input type="text" id="mapSearchInput" class="search-input" placeholder="搜尋美食、景點、招牌必吃..." autocomplete="off">
+        </div>
+
+        <div class="filter-pills" id="categoryFilterBar">
+          <button class="filter-btn active" data-category="all">全部 (<span id="countAll">46</span>)</button>
+          <button class="filter-btn" data-category="food">🍜 在地美食 (<span id="countFood">32</span>)</button>
+          <button class="filter-btn" data-category="spot">🏛️ 建築景點 (<span id="countSpot">14</span>)</button>
+        </div>
+      </div>
+
+      <!-- 縮放控制鈕 -->
+      <div class="zoom-controls">
+        <button class="zoom-btn" id="btnZoomIn" title="放大地圖">+</button>
+        <button class="zoom-btn" id="btnZoomOut" title="縮小地圖">−</button>
+        <button class="zoom-btn" id="btnZoomReset" title="重設視角">↺</button>
+      </div>
+
+      <!-- SVG 向量互動地圖畫布容器 -->
+      <div class="svg-canvas-container" id="mapCanvasWrapper">
+        <svg id="handdrawnMapSvg" class="handdrawn-svg-map" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet">
+          <!-- 背景紙質紋理與底色 -->
+          <defs>
+            <filter id="paperRoughness" x="0%" y="0%" width="100%" height="100%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+              <feDiffuseLighting in="noise" lighting-color="#fdfaf2" surfaceScale="1.2" result="light">
+                <feDistantLight azimuth="60" elevation="50" />
+              </feDiffuseLighting>
+              <feBlend mode="multiply" in="SourceGraphic" in2="light" />
+            </filter>
+            
+            <filter id="pinDropShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#4a3828" flood-opacity="0.35" />
+            </filter>
+            <filter id="cardHoverGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ff6f3c" flood-opacity="0.8" />
+            </filter>
+          </defs>
+
+          <!-- 畫布平移與縮放分組 -->
+          <g id="mapTransformGroup">
+            <!-- 手繪風格裝飾元素 (邊框、草地、小徑) -->
+            <g id="mapDecorationsLayer"></g>
+            
+            <!-- 骨幹路網圖層 (底框與路面) -->
+            <g id="mapRoadEdgesLayer"></g>
+            <g id="mapRoadsLayer"></g>
+            <g id="mapRoadLabelsLayer"></g>
+
+            <!-- 地標建築與文化插畫圖層 -->
+            <g id="mapLandmarksLayer"></g>
+
+            <!-- 點位圖釘貼紙圖層 (美食 橘紅 / 景點 藍綠) -->
+            <g id="mapPinsLayer"></g>
+
+            <!-- 地圖標題與圖例藝術文字 -->
+            <g id="mapTitleArtLayer"></g>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 側邊對應索引欄 (對照規範一) -->
+    <aside class="side-index-panel" aria-label="點位索引欄">
+      <div class="index-panel-header">
+        <div class="index-panel-title">
+          <span>📋</span> 點位對照清單
+        </div>
+        <div class="index-counter-badge" id="sideIndexCounter">46 個據點</div>
+      </div>
+
+      <!-- 分類分頁標籤 -->
+      <div class="index-category-tabs">
+        <button class="index-tab active" data-target="food" id="tabIndexFood">
+          🍜 美食分類 (01~32)
+        </button>
+        <button class="index-tab" data-target="spot" id="tabIndexSpot">
+          🏛️ 建築景點 (01~14)
+        </button>
+      </div>
+
+      <!-- 滾動清單 -->
+      <div class="index-list-container" id="sideIndexList">
+        <!-- 動態由 JavaScript 填入 -->
+      </div>
+    </aside>
+  </main>
+
+  <!-- ================= 視圖二：雙面社區資源卡總覽網格 (A6/B6) ================= -->
+  <section class="view-panel" id="viewCards">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <div>
+        <h2 style="font-family: var(--font-serif); font-size: 24px; color: var(--ink-brown);">
+          📇 社區資源卡總覽庫 (明信片規格 A6 / B6)
+        </h2>
+        <p style="font-size: 13.5px; color: var(--ink-muted); margin-top: 4px;">
+          點擊任一張卡片即可開啟「3D 雙面翻轉檢視」與「無障礙友善資源盤點」。
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <input type="text" id="cardsGridSearch" class="form-control" placeholder="篩選卡片..." style="width: 220px;">
+        <button class="btn-pill primary" id="btnBatchPrintCards">🖨️ 批次排版列印卡片</button>
+      </div>
+    </div>
+
+    <!-- 卡片網格列表 -->
+    <div class="cards-grid-layout" id="cardsGridLayout">
+      <!-- 動態填入 -->
+    </div>
+  </section>
+
+  <!-- ================= 視圖三：實體列印排版模式 (A4 4-Up, 海報, 圓貼, 學習單) ================= -->
+  <section class="view-panel" id="viewPrint">
+    <div class="print-options-toolbar">
+      <div class="print-type-select">
+        <button class="print-type-btn active" data-print-mode="cards_front">📇 資源卡【正面】(A4 4-Up)</button>
+        <button class="print-type-btn" data-print-mode="cards_back">📝 資源卡【反面盤點】(A4 4-Up)</button>
+        <button class="print-type-btn" data-print-mode="poster_map">🗺️ 海報大地圖 (A3/全開)</button>
+        <button class="print-type-btn" data-print-mode="stickers">🏷️ 點位編號圓貼紙</button>
+        <button class="print-type-btn" data-print-mode="worksheet">📋 田野踏查學習單</button>
+      </div>
+      <button class="btn-pill primary" onclick="window.print()">
+        <span>🖨️</span> 立即列印 / 存為 PDF
+      </button>
+    </div>
+
+    <!-- 列印預覽畫布容器 -->
+    <div id="printPreviewContainer">
+      <!-- 動態載入選定的列印樣式結構 -->
+    </div>
+  </section>
+
+  <!-- ================= 視圖四：田野踏查教學手冊 (教學指引與流程) ================= -->
+  <section class="view-panel" id="viewGuide">
+    <div style="max-width: 900px; margin: 0 auto;">
+      <h2 style="font-family: var(--font-serif); font-size: 26px; color: var(--ink-brown); margin-bottom: 8px;">
+        🎒 社區活動地圖與資源卡：執行與教學引導流程
+      </h2>
+      <p style="color: var(--ink-muted); margin-bottom: 24px;">
+        本套指引專為社區大學、樂齡學習中心、中小學校本課程及社區營造工作坊設計，帶領學員從踏查走訪到產出實體手冊。
+      </p>
+
+      <div class="guide-step-card">
+        <span class="step-badge">第一階段</span>
+        <h3 style="font-size: 18px; color: var(--food-primary); margin-bottom: 6px;">📷 田野踏查與拍照收集</h3>
+        <p style="font-size: 14px; margin-bottom: 8px;">
+          帶著學員實際走訪社區街道，進行「在地美食」與「建築景點」實地訪查：
+        </p>
+        <ul style="padding-left: 20px; font-size: 13.5px; color: var(--ink-brown); line-height: 1.8;">
+          <li>拍攝店家招牌、代表性餐點或建築外觀正面特寫。</li>
+          <li>訪查記錄基本資訊：營業時間、公休、聯絡電話、歷史故事。</li>
+          <li><strong>無障礙環境盤點</strong>：觀察門口是否有階梯／斜坡、輪椅通道寬度、是否有友善廁所等。</li>
+        </ul>
+      </div>
+
+      <div class="guide-step-card">
+        <span class="step-badge">第二階段</span>
+        <h3 style="font-size: 18px; color: var(--spot-primary); margin-bottom: 6px;">🎨 繪製 / 輸出點位小圖</h3>
+        <p style="font-size: 14px; margin-bottom: 8px;">
+          將實拍照片或手繪圖稿轉換為可實體張貼之模組：
+        </p>
+        <ul style="padding-left: 20px; font-size: 13.5px; color: var(--ink-brown); line-height: 1.8;">
+          <li>使用本系統之「實體列印排版」功能，輸出 4-up 雙面資源卡與圓形編號貼紙。</li>
+          <li>由學員在正面手繪插畫或貼上實拍照片，背面勾選無障礙與評分資訊。</li>
+          <li>將資源卡與點位小圖進行護膜（透明膠膜），提升耐用度。</li>
+        </ul>
+      </div>
+
+      <div class="guide-step-card">
+        <span class="step-badge">第三階段</span>
+        <h3 style="font-size: 18px; color: #7b1fa2; margin-bottom: 6px;">📍 地圖定位與張貼 (魔鬼氈互動)</h3>
+        <p style="font-size: 14px; margin-bottom: 8px;">
+          在全開海報底圖上建立集體共創成果：
+        </p>
+        <ul style="padding-left: 20px; font-size: 13.5px; color: var(--ink-brown); line-height: 1.8;">
+          <li>將大地圖張貼於教室或社區展示牆面。</li>
+          <li>在點位插圖與照片背後貼上魔鬼氈或環保黏土。</li>
+          <li>依照實際走訪路線，對照路名將編號圓貼與圖卡張貼在底圖正確位置，隨時可取下更新。</li>
+        </ul>
+      </div>
+
+      <div class="guide-step-card">
+        <span class="step-badge">第四階段</span>
+        <h3 style="font-size: 18px; color: #2e7d32; margin-bottom: 6px;">📖 資源卡歸檔與手冊應用</h3>
+        <p style="font-size: 14px; margin-bottom: 8px;">
+          將產出深化為可隨身攜帶的實用導覽工具：
+        </p>
+        <ul style="padding-left: 20px; font-size: 13.5px; color: var(--ink-brown); line-height: 1.8;">
+          <li>每張 A6 資源卡皆印有標準「打孔導引圈」，使用打孔器在左上角打孔。</li>
+          <li>使用活動金屬鐵環將全套資源卡按編號串聯成「社區資源口袋手冊」。</li>
+          <li>日後作為長輩外出導覽、社區採買任務或日常活動規劃的實用工具。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 彈窗一：3D 雙面社區資源卡檢視彈窗 ================= -->
+  <div class="modal-backdrop" id="cardModalBackdrop">
+    <div class="card-modal-content">
+      
+      <!-- 3D 翻轉卡片主體 -->
+      <div class="card-flip-container" id="cardFlipper">
+        <div class="card-flip-inner">
+          
+          <!-- === 卡片正面 (視覺與識別) === -->
+          <div class="card-face card-face-front" id="modalCardFront">
+            <div class="card-front-header">
+              <div class="card-badge-id" id="modalFrontBadge">#01 在地美食</div>
+              <div class="card-category-tag" id="modalFrontTag">經典老店</div>
+            </div>
+
+            <h3 class="card-place-title" id="modalFrontTitle">怪人花枝鱔魚麵</h3>
+
+            <div class="card-illustration-frame" id="modalFrontIllFrame">
+              <!-- 動態置入 SVG 插畫或照片 -->
+            </div>
+
+            <div class="card-front-footer">
+              <span id="modalFrontCode">編號：美食 01</span>
+              <span>📍 對照大地圖位置</span>
+            </div>
+
+            <div class="card-stamp-seal">土庫好味<br>認證戳章</div>
+          </div>
+
+          <!-- === 卡片反面 (實用與無障礙盤點) === -->
+          <div class="card-face card-face-back" id="modalCardBack">
+            <div class="card-back-header">
+              <div>
+                <span style="font-weight: 900; font-size: 15px; color: var(--ink-brown);" id="modalBackTitle">怪人花枝鱔魚麵</span>
+                <span style="font-size: 12px; color: var(--ink-muted); margin-left: 6px;" id="modalBackCode">#01</span>
+              </div>
+              <div class="card-badge-id" style="font-size: 11px; padding: 2px 8px;">反面・資源盤點</div>
+            </div>
+
+            <!-- 1. 基本資訊 -->
+            <div class="card-back-section">
+              <div class="card-section-title">📌 1. 基本聯絡資訊</div>
+              <div class="info-grid">
+                <span class="info-label">詳細地址：</span>
+                <span class="info-value" id="modalBackAddress">雲林縣土庫鎮中正路105號</span>
+                
+                <span class="info-label">營業時間：</span>
+                <span class="info-value" id="modalBackHours">10:00 - 20:30</span>
+
+                <span class="info-label">公休日：</span>
+                <span class="info-value" id="modalBackOffDay" style="color: #c62828;">每週一公休</span>
+
+                <span class="info-label">聯絡電話：</span>
+                <span class="info-value" id="modalBackPhone">05-6622088</span>
+              </div>
+            </div>
+
+            <!-- 2. 無障礙與友善環境 -->
+            <div class="card-back-section">
+              <div class="card-section-title">♿ 2. 無障礙與友善環境盤點</div>
+              <div class="acc-checklist" id="modalBackAccList">
+                <!-- 動態注入無障礙勾選圖示 -->
+              </div>
+            </div>
+
+            <!-- 3. 特色亮點與故事 -->
+            <div class="card-back-section">
+              <div class="card-section-title">✨ 3. 招牌亮點與故事筆記</div>
+              <div class="card-story-box">
+                <div style="font-weight: 700; margin-bottom: 2px;" id="modalBackSignature">招牌：現炒鱔魚意麵、生炒花枝羹</div>
+                <div id="modalBackStory" style="font-size: 11.5px; opacity: 0.9;">土庫傳奇老店，鑊氣十足，是在地人最懷念的美味。</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 控制列按鈕 -->
+      <div class="card-modal-actions">
+        <button class="flip-toggle-btn" id="btnFlipCard">
+          <span>🔄</span> 翻轉卡片 (正面 ⟷ 反面)
+        </button>
+        <button class="btn-pill" id="btnSpeechCard" title="語音朗讀介紹">
+          <span>🔊</span> 語音朗讀
+        </button>
+        <button class="btn-pill" id="btnEditCurrentCard" title="編輯此卡片內容">
+          <span>✏️</span> 編輯
+        </button>
+        <button class="btn-pill" id="btnCloseCardModal">
+          <span>✖</span> 關閉
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= 彈窗二：新增/編輯點位表單 ================= -->
+  <div class="modal-backdrop" id="editModalBackdrop">
+    <div style="background: var(--bg-card); border: 3px solid var(--border-hand); border-radius: 20px; padding: 24px; width: 620px; max-width: 92vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 36px rgba(0,0,0,0.2);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 2px solid var(--border-hand); padding-bottom: 8px;">
+        <h3 style="font-family: var(--font-serif); font-size: 20px; color: var(--ink-brown);" id="editModalTitle">✏️ 編輯社區點位資料</h3>
+        <button id="btnCloseEditModal" style="background: none; border: none; font-size: 20px; cursor: pointer;">✖</button>
+      </div>
+
+      <form id="pointEditForm" class="edit-form-grid">
+        <div class="form-group">
+          <label class="form-label">地點名稱 *</label>
+          <input type="text" id="formName" class="form-control" required placeholder="例：阿海師鴨肉麵線">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">分類類別 *</label>
+          <select id="formCategory" class="form-control">
+            <option value="food">🍜 在地美食 (橘紅色系)</option>
+            <option value="spot">🏛️ 建築景點 (藍綠色系)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">地圖對照編號 *</label>
+          <input type="text" id="formCode" class="form-control" required placeholder="例：01">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">分類標籤</label>
+          <input type="text" id="formTag" class="form-control" placeholder="例：在地美食 / 經典老店">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">詳細地址</label>
+          <input type="text" id="formAddress" class="form-control" placeholder="例：雲林縣土庫鎮中正路105號">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">營業時間</label>
+          <input type="text" id="formHours" class="form-control" placeholder="例：10:00 - 20:30">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">公休日</label>
+          <input type="text" id="formOffDay" class="form-control" placeholder="例：每週一公休">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">聯絡電話</label>
+          <input type="text" id="formPhone" class="form-control" placeholder="例：05-6622088">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">手繪風格插畫</label>
+          <select id="formIllKey" class="form-control">
+            <option value="food_duck_noodles">🍜 鴨肉麵線 / 當歸湯</option>
+            <option value="food_cake">🥮 傳統大餅 / 漢餅</option>
+            <option value="food_rice_cake">🍙 傳統米糕 / 油飯</option>
+            <option value="food_shaved_ice">🍧 古早味冰品 / 豆花</option>
+            <option value="food_coffee">☕ 手沖咖啡 / 茶飲</option>
+            <option value="food_bread">🍞 手作烘焙 / 點心</option>
+            <option value="food_bao">🥟 手工肉包 / 湯包</option>
+            <option value="spot_temple">⛩️ 信仰廟宇 / 順天宮</option>
+            <option value="spot_church">⛪ 基督長老教會</option>
+            <option value="spot_story_house">🏡 日式老屋 / 故事屋</option>
+            <option value="spot_granary">🌾 八角糧倉 / 歷史穀倉</option>
+            <option value="spot_market">🥬 傳統市場 / 老街市集</option>
+            <option value="spot_school">🏫 學校文教 / 圖書館</option>
+            <option value="decor_traveler_bike">🚲 騎單車旅行者</option>
+            <option value="decor_ox_cart">🐂 牽牛車 / 農村</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">招牌必點 / 特色推薦</label>
+          <input type="text" id="formSignature" class="form-control" placeholder="例：現炒鱔魚意麵、生炒花枝羹">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">在地故事 / 踏查筆記</label>
+          <textarea id="formStory" class="form-control" rows="3" placeholder="請填寫在地歷史故事、學員訪談筆記或特色亮點..."></textarea>
+        </div>
+
+        <div style="grid-column: span 2; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button type="button" class="btn-pill" id="btnCancelEdit">取消</button>
+          <button type="submit" class="btn-pill primary">儲存點位與卡片</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Libraries and App Logic -->
+  <script src="data/illustrations.js"></script>
+  <script src="data/tuku_sample.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

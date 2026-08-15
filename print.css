@@ -1,0 +1,110 @@
+/* ==========================================================================
+   實體印刷與輸出專用樣式表 (Print & Export Stylesheet)
+   針對 A4、A3、A6 雙面資源卡、全開地圖、圖釘圓貼與踏查記錄表之精確列印
+   ========================================================================== */
+
+@media print {
+  /* 隱藏所有網頁介面裝飾、導覽列與操作按鈕 */
+  .app-header,
+  .map-floating-bar,
+  .zoom-controls,
+  .side-index-panel,
+  .print-options-toolbar,
+  .card-modal-actions,
+  .nav-tabs,
+  .btn-pill,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    background-image: none !important;
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 11pt;
+  }
+
+  .main-container {
+    display: block !important;
+    height: auto !important;
+  }
+
+  /* 雙面資源卡列印模式 (A4 4-Up) */
+  .a4-print-sheet {
+    width: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 8mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    page-break-after: always !important;
+  }
+
+  .a4-grid-4up {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 6mm !important;
+    height: auto !important;
+  }
+
+  .card-print-box {
+    border: 1.5pt solid #222 !important;
+    page-break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+    background: #fff !important;
+  }
+
+  .card-face {
+    box-shadow: none !important;
+    border: 2pt solid #000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 裁切線與打孔標記在列印時保持清晰可見 */
+  .crop-cross {
+    border-color: #000 !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  .hole-punch-guide {
+    border: 1pt dashed #000 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* 地圖海報列印模式 */
+  .print-mode-poster {
+    width: 100% !important;
+    height: 100% !important;
+    page-break-inside: avoid !important;
+  }
+
+  .handdrawn-svg-map {
+    width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* 分頁規則 */
+  .page-break {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 6mm;
+  }
+
+  @page landscape-map {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+}
