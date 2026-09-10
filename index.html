@@ -66,8 +66,11 @@
 
         <div class="filter-pills" id="categoryFilterBar">
           <button class="filter-btn active" data-category="all">全部 (<span id="countAll">46</span>)</button>
-          <button class="filter-btn" data-category="food">🍜 在地美食 (<span id="countFood">32</span>)</button>
-          <button class="filter-btn" data-category="spot">🏛️ 建築景點 (<span id="countSpot">14</span>)</button>
+          <button class="filter-btn" data-category="food">🍜 飲食 (<span id="countFood">32</span>)</button>
+          <button class="filter-btn" data-category="shop">🛒 購物 (<span id="countShop">5</span>)</button>
+          <button class="filter-btn" data-category="medical">🏥 醫療 (<span id="countMedical">3</span>)</button>
+          <button class="filter-btn" data-category="spot">🌳 休閒景點 (<span id="countSpot">14</span>)</button>
+          <button class="filter-btn" data-category="transport">🚌 交通 (<span id="countTransport">2</span>)</button>
         </div>
       </div>
 
@@ -177,6 +180,7 @@
       <div class="print-type-select">
         <button class="print-type-btn active" data-print-mode="cards_front">📇 資源卡【正面】(A4 4-Up)</button>
         <button class="print-type-btn" data-print-mode="cards_back">📝 資源卡【反面盤點】(A4 4-Up)</button>
+        <button class="print-type-btn" data-print-mode="cards_blank">✏️ 空白盤點資源卡 (A4 4-Up 外出攜帶)</button>
         <button class="print-type-btn" data-print-mode="poster_map">🗺️ 海報大地圖 (A3/全開)</button>
         <button class="print-type-btn" data-print-mode="stickers">🏷️ 點位編號圓貼紙</button>
         <button class="print-type-btn" data-print-mode="worksheet">📋 田野踏查學習單</button>
@@ -198,9 +202,23 @@
       <h2 style="font-family: var(--font-serif); font-size: 26px; color: var(--ink-brown); margin-bottom: 8px;">
         🎒 社區活動地圖與資源卡：執行與教學引導流程
       </h2>
-      <p style="color: var(--ink-muted); margin-bottom: 24px;">
+      <p style="color: var(--ink-muted); margin-bottom: 20px;">
         本套指引專為社區大學、樂齡學習中心、中小學校本課程及社區營造工作坊設計，帶領學員從踏查走訪到產出實體手冊。
       </p>
+
+      <!-- 照片 1 使用說明規範區塊 -->
+      <div class="guide-step-card" style="border: 3px solid #fbc02d; background: #fffde7; margin-bottom: 24px;">
+        <span class="step-badge" style="background: #fbc02d; color: #5d4037;">製作與使用說明</span>
+        <h3 style="font-size: 19px; color: #5d4037; margin-bottom: 10px;">📋 雙面資源卡製作 5 大原則</h3>
+        <ol style="padding-left: 20px; font-size: 14px; color: #4e342e; line-height: 1.9; font-weight: 500;">
+          <li><strong>每一個地點做一張卡片</strong>：建議印出來護貝，方便學員外出重複使用與擦拭。</li>
+          <li><strong>「照片」放實際拍的店面外觀照</strong>：讓學員用眼睛就能一眼認出地點。</li>
+          <li><strong>「友善特色」用最簡單的一句話描述</strong>：可依機構常用圖卡系統替換。</li>
+          <li><strong>「適合練習的目標」直接對應學員 ISP 個別化目標</strong>：方便支持人員挑選學習重點。</li>
+          <li><strong>新增「可分配的工作內容」</strong>：讓學員進行分工指派（如採買組長、付款員、記錄員等）。</li>
+          <li><strong>建議依類別分類收納</strong>：分為「飲食／購物／醫療／休閒／交通」，並每半年檢查資訊正確度。</li>
+        </ol>
+      </div>
 
       <div class="guide-step-card">
         <span class="step-badge">第一階段</span>
@@ -264,25 +282,52 @@
       <div class="card-flip-container" id="cardFlipper">
         <div class="card-flip-inner">
           
-          <!-- === 卡片正面 (視覺與識別) === -->
+          <!-- === 卡片正面 (對照照片 2 範本卡片樣式) === -->
           <div class="card-face card-face-front" id="modalCardFront">
             <div class="card-front-header">
-              <div class="card-badge-id" id="modalFrontBadge">#01 在地美食</div>
-              <div class="card-category-tag" id="modalFrontTag">經典老店</div>
+              <div class="card-badge-id" id="modalFrontBadge">#01 飲食</div>
+              <div class="card-category-tag" id="modalFrontTag">在地老店</div>
             </div>
 
-            <h3 class="card-place-title" id="modalFrontTitle">怪人花枝鱔魚麵</h3>
+            <h3 class="card-place-title">〔 <span id="modalFrontTitle">怪人花枝鱔魚麵</span> 〕</h3>
 
-            <div class="card-illustration-frame" id="modalFrontIllFrame">
-              <!-- 動態置入 SVG 插畫或照片 -->
+            <!-- 放店面照片 / 插畫框 -->
+            <div class="card-illustration-frame photo-mode" id="modalFrontIllFrame">
+              <!-- 動態置入照片或 SVG 插畫 -->
             </div>
 
-            <div class="card-front-footer">
-              <span id="modalFrontCode">編號：美食 01</span>
-              <span>📍 對照大地圖位置</span>
+            <!-- 地址與步行時間 -->
+            <div class="card-info-row">
+              <span class="info-icon">📍</span>
+              <strong>地址 / 怎麼走：</strong>
+              <span>從機構走路約 <span id="modalFrontWalkTime" class="highlight-text">5</span> 分鐘</span>
+              <span id="modalFrontAddressSub" style="font-size: 11px; opacity: 0.85; display: block; margin-top: 1px;">(中正路105號)</span>
             </div>
 
-            <div class="card-stamp-seal">土庫好味<br>認證戳章</div>
+            <!-- 營業時間 -->
+            <div class="card-info-row">
+              <span class="info-icon">🕒</span>
+              <strong>營業時間：</strong>
+              <span id="modalFrontHours">10:00 - 20:30 (每週一公休)</span>
+            </div>
+
+            <!-- 😊 友善特色 (黃色區塊) -->
+            <div class="card-feature-box friendly">
+              <div class="box-header">😊 友善特色</div>
+              <div class="box-content" id="modalFrontFriendlyFeatures">會耐心等待點餐、有無障礙廁所、店員認識學員</div>
+            </div>
+
+            <!-- 🎯 適合練習的目標 (綠色區塊) -->
+            <div class="card-feature-box practice">
+              <div class="box-header">🎯 適合練習的目標</div>
+              <div class="box-content" id="modalFrontPracticeGoals">練習自己付款、練習排隊等待、語言溝通表現</div>
+            </div>
+
+            <!-- 💼 可分配的工作內容 (紫橘色區塊 - 新增需求) -->
+            <div class="card-feature-box jobs">
+              <div class="box-header">💼 可分配的工作內容 (學員分工)</div>
+              <div class="box-content" id="modalFrontJobTasks">擔任點餐員、擔任付款與算錢員、擔任隨行照片記錄員</div>
+            </div>
           </div>
 
           <!-- === 卡片反面 (實用與無障礙盤點) === -->
@@ -364,14 +409,17 @@
       <form id="pointEditForm" class="edit-form-grid">
         <div class="form-group">
           <label class="form-label">地點名稱 *</label>
-          <input type="text" id="formName" class="form-control" required placeholder="例：阿海師鴨肉麵線">
+          <input type="text" id="formName" class="form-control" required placeholder="例：怪人花枝鱔魚麵">
         </div>
 
         <div class="form-group">
           <label class="form-label">分類類別 *</label>
           <select id="formCategory" class="form-control">
-            <option value="food">🍜 在地美食 (橘紅色系)</option>
-            <option value="spot">🏛️ 建築景點 (藍綠色系)</option>
+            <option value="food">🍜 飲食 (橘紅色系)</option>
+            <option value="shop">🛒 購物 (黃綠色系)</option>
+            <option value="medical">🏥 醫療 (粉紅色系)</option>
+            <option value="spot">🌳 休閒/景點 (藍綠色系)</option>
+            <option value="transport">🚌 交通 (藍灰色系)</option>
           </select>
         </div>
 
@@ -383,6 +431,16 @@
         <div class="form-group">
           <label class="form-label">分類標籤</label>
           <input type="text" id="formTag" class="form-control" placeholder="例：在地美食 / 經典老店">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">從機構走路約 (分鐘)</label>
+          <input type="number" id="formWalkTime" class="form-control" placeholder="例：5" min="1" max="120">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">店面外觀照片網址 (選填)</label>
+          <input type="url" id="formPhotoUrl" class="form-control" placeholder="https://example.com/photo.jpg">
         </div>
 
         <div class="form-group" style="grid-column: span 2;">
@@ -406,7 +464,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">手繪風格插畫</label>
+          <label class="form-label">手繪風格插畫 (無照片時呈現)</label>
           <select id="formIllKey" class="form-control">
             <option value="food_duck_noodles">🍜 鴨肉麵線 / 當歸湯</option>
             <option value="food_cake">🥮 傳統大餅 / 漢餅</option>
@@ -427,13 +485,28 @@
         </div>
 
         <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">😊 友善特色 (黃色區塊，依照片範本)</label>
+          <input type="text" id="formFriendlyFeatures" class="form-control" placeholder="例：會耐心等待點餐、有無障礙廁所、店員認識學員">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">🎯 適合練習的目標 (綠色區塊，ISP個別化目標)</label>
+          <input type="text" id="formPracticeGoals" class="form-control" placeholder="例：練習自己付款、練習排隊等待、社交問候">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
+          <label class="form-label">💼 可分配的工作內容 (紫橘區塊，學員分工指派)</label>
+          <input type="text" id="formJobTasks" class="form-control" placeholder="例：擔任點餐組長、擔任算錢付款員、擔任隨行照片記錄員">
+        </div>
+
+        <div class="form-group" style="grid-column: span 2;">
           <label class="form-label">招牌必點 / 特色推薦</label>
           <input type="text" id="formSignature" class="form-control" placeholder="例：現炒鱔魚意麵、生炒花枝羹">
         </div>
 
         <div class="form-group" style="grid-column: span 2;">
           <label class="form-label">在地故事 / 踏查筆記</label>
-          <textarea id="formStory" class="form-control" rows="3" placeholder="請填寫在地歷史故事、學員訪談筆記或特色亮點..."></textarea>
+          <textarea id="formStory" class="form-control" rows="2" placeholder="請填寫在地歷史故事、學員訪談筆記或特色亮點..."></textarea>
         </div>
 
         <div style="grid-column: span 2; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">

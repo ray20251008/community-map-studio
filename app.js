@@ -485,6 +485,42 @@
     }
   }
 
+  // 取得點位分類中文名稱 (對照照片 1 指引第 5 點：飲食/購物/醫療/休閒/交通)
+  function getLocCategoryName(cat) {
+    switch (cat) {
+      case 'food': return '飲食';
+      case 'shop': return '購物';
+      case 'medical': return '醫療';
+      case 'spot': return '休閒';
+      case 'transport': return '交通';
+      default: return '資源';
+    }
+  }
+
+  // 取得點位步行時間
+  function getLocWalkTime(loc) {
+    return loc.walkTime || '5';
+  }
+
+  // 取得點位友善特色 (黃色區塊，照片 2 樣式)
+  function getLocFriendlyFeatures(loc) {
+    if (loc.friendlyFeatures) return loc.friendlyFeatures;
+    const stepText = loc.accessibility?.stepText || '門口平坦無階梯';
+    return `店員親切熱情、${stepText}、會耐心等待學員點餐與溝通。`;
+  }
+
+  // 取得適合練習的目標 (粉綠區塊，ISP 個別化目標)
+  function getLocPracticeGoals(loc) {
+    if (loc.practiceGoals) return loc.practiceGoals;
+    return '練習自己選擇商品與點餐、練習排隊等待、學習付款與找零計算。';
+  }
+
+  // 取得可分配的工作內容 (紫橘區塊 - 新增需求)
+  function getLocJobTasks(loc) {
+    if (loc.jobTasks) return loc.jobTasks;
+    return '擔任點餐與採買組長（挑選品項）、擔任付款算錢員（交付零錢）、擔任隨行照片與紀錄員。';
+  }
+
   // ================= 3D 雙面社區資源卡控制 (Card Modal) =================
   function openLocationCard(loc) {
     state.selectedLocation = loc;
@@ -496,30 +532,61 @@
 
     flipper.classList.remove('flipped');
 
-    const isFood = loc.category === 'food';
-    const catLabel = isFood ? '在地美食' : '建築景點';
-    const badgeColorClass = isFood ? 'food' : 'spot';
+    const catLabel = getLocCategoryName(loc.category);
+    const isFoodOrShop = loc.category === 'food' || loc.category === 'shop';
+    const badgeColorClass = isFoodOrShop ? 'food' : 'spot';
 
-    // 填寫【正面】內容 (識別與視覺)
+    // 填寫【正面】內容 (對照照片 2 範本卡片)
     const frontBadge = document.getElementById('modalFrontBadge');
-    frontBadge.className = `card-badge-id ${badgeColorClass}`;
-    frontBadge.textContent = `#${loc.code} ${catLabel}`;
-
-    document.getElementById('modalFrontTag').textContent = loc.tag || '社區資源';
-    document.getElementById('modalFrontTitle').textContent = loc.name;
-    document.getElementById('modalFrontCode').textContent = `地圖編號：${catLabel} ${loc.code}`;
-
-    // 插畫展示
-    const illFrame = document.getElementById('modalFrontIllFrame');
-    if (loc.photoUrl) {
-      illFrame.innerHTML = `<img src="${loc.photoUrl}" alt="${loc.name}">`;
-    } else if (loc.illKey && HANDDRAWN_ILLUSTRATIONS[loc.illKey]) {
-      illFrame.innerHTML = HANDDRAWN_ILLUSTRATIONS[loc.illKey].svg;
-    } else {
-      illFrame.innerHTML = HANDDRAWN_ILLUSTRATIONS.spot_temple.svg;
+    if (frontBadge) {
+      frontBadge.className = `card-badge-id ${badgeColorClass}`;
+      frontBadge.textContent = `#${loc.code} ${catLabel}`;
     }
 
-    // 填寫【反面】內容 (實用與無障礙盤點)
+    const tagEl = document.getElementById('modalFrontTag');
+    if (tagEl) tagEl.textContent = loc.tag || catLabel;
+
+    const titleEl = document.getElementById('modalFrontTitle');
+    if (titleEl) titleEl.textContent = loc.name;
+
+    const walkEl = document.getElementById('modalFrontWalkTime');
+    if (walkEl) walkEl.textContent = getLocWalkTime(loc);
+
+    const addrSub = document.getElementById('modalFrontAddressSub');
+    if (addrSub) addrSub.textContent = loc.address ? `(${loc.address})` : '';
+
+    const hoursEl = document.getElementById('modalFrontHours');
+    if (hoursEl) hoursEl.textContent = `${loc.hours || '請洽店家'} ${loc.offDay ? '(' + loc.offDay + ')' : ''}`;
+
+    const friendlyEl = document.getElementById('modalFrontFriendlyFeatures');
+    if (friendlyEl) friendlyEl.textContent = getLocFriendlyFeatures(loc);
+
+    const practiceEl = document.getElementById('modalFrontPracticeGoals');
+    if (practiceEl) practiceEl.textContent = getLocPracticeGoals(loc);
+
+    const jobEl = document.getElementById('modalFrontJobTasks');
+    if (jobEl) jobEl.textContent = getLocJobTasks(loc);
+
+    // 插畫與照片展示 (對照照片 2 [ 📷 放店面照片 ])
+    const illFrame = document.getElementById('modalFrontIllFrame');
+    if (illFrame) {
+      const illSvg = (loc.illKey && HANDDRAWN_ILLUSTRATIONS[loc.illKey]) 
+        ? HANDDRAWN_ILLUSTRATIONS[loc.illKey].svg 
+        : HANDDRAWN_ILLUSTRATIONS.spot_temple.svg;
+
+      if (loc.photoUrl) {
+        illFrame.innerHTML = `<img src="${loc.photoUrl}" alt="${loc.name}">`;
+      } else {
+        illFrame.innerHTML = `
+          <div class="photo-placeholder-text">
+            <span>📷 店面外觀照片</span>
+            <div style="width: 55px; height: 55px; margin-top: 4px;">${illSvg}</div>
+          </div>
+        `;
+      }
+    }
+
+    // 填寫【反面】內容 (詳細聯絡資訊與無障礙盤點)
     document.getElementById('modalBackTitle').textContent = loc.name;
     document.getElementById('modalBackCode').textContent = `#${loc.code} (${catLabel})`;
     document.getElementById('modalBackAddress').textContent = loc.address || '未登錄地址';
@@ -532,31 +599,32 @@
 
     // 無障礙友善圖示勾選
     const accList = document.getElementById('modalBackAccList');
-    accList.innerHTML = '';
+    if (accList) {
+      accList.innerHTML = '';
+      const acc = loc.accessibility || {};
+      const stepText = acc.stepText || '門口平坦無階';
+      const passageText = acc.passageText || '通道通暢寬敞';
+      const toiletText = acc.toiletText || '一般洗手間';
 
-    const acc = loc.accessibility || {};
-    const stepText = acc.stepText || '門口平坦無階';
-    const passageText = acc.passageText || '通道通暢寬敞';
-    const toiletText = acc.toiletText || '一般洗手間';
-
-    accList.innerHTML = `
-      <div class="acc-item-box active">
-        <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.step_0}</span>
-        <span>${stepText}</span>
-      </div>
-      <div class="acc-item-box active">
-        <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.wheelchair}</span>
-        <span>${passageText}</span>
-      </div>
-      <div class="acc-item-box active">
-        <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.toilet_accessible}</span>
-        <span>${toiletText}</span>
-      </div>
-      <div class="acc-item-box active">
-        <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.elder_seat}</span>
-        <span>敬老友善座 / 飲水</span>
-      </div>
-    `;
+      accList.innerHTML = `
+        <div class="acc-item-box active">
+          <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.step_0}</span>
+          <span>${stepText}</span>
+        </div>
+        <div class="acc-item-box active">
+          <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.wheelchair}</span>
+          <span>${passageText}</span>
+        </div>
+        <div class="acc-item-box active">
+          <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.toilet_accessible}</span>
+          <span>${toiletText}</span>
+        </div>
+        <div class="acc-item-box active">
+          <span class="acc-icon-svg">${ACCESSIBILITY_ICONS.elder_seat}</span>
+          <span>敬老友善座 / 飲水</span>
+        </div>
+      `;
+    }
 
     backdrop.classList.add('open');
   }
@@ -599,38 +667,49 @@
       return !searchQuery || 
         l.name.toLowerCase().includes(searchQuery) || 
         (l.signature && l.signature.toLowerCase().includes(searchQuery)) ||
-        (l.tag && l.tag.toLowerCase().includes(searchQuery));
+        (l.tag && l.tag.toLowerCase().includes(searchQuery)) ||
+        (l.friendlyFeatures && l.friendlyFeatures.toLowerCase().includes(searchQuery)) ||
+        (l.practiceGoals && l.practiceGoals.toLowerCase().includes(searchQuery)) ||
+        (l.jobTasks && l.jobTasks.toLowerCase().includes(searchQuery));
     });
 
     filtered.forEach(loc => {
       const card = document.createElement('div');
       card.className = 'grid-card-preview';
       
-      const isFood = loc.category === 'food';
-      const badgeColor = isFood ? 'var(--food-primary)' : 'var(--spot-primary)';
+      const catName = getLocCategoryName(loc.category);
+      const isFoodOrShop = loc.category === 'food' || loc.category === 'shop';
+      const badgeColor = isFoodOrShop ? 'var(--food-primary)' : 'var(--spot-primary)';
       const illSvg = (loc.illKey && HANDDRAWN_ILLUSTRATIONS[loc.illKey]) 
         ? HANDDRAWN_ILLUSTRATIONS[loc.illKey].svg 
         : HANDDRAWN_ILLUSTRATIONS.spot_temple.svg;
 
+      const photoContent = loc.photoUrl 
+        ? `<img src="${loc.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${loc.name}">`
+        : `<div style="width:55px;height:55px;">${illSvg}</div>`;
+
       card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <span style="background: ${badgeColor}; color: #fff; font-size: 11px; font-weight: 900; padding: 2px 8px; border-radius: 10px;">
-            #${loc.code} ${isFood ? '美食' : '景點'}
+            #${loc.code} ${catName}
           </span>
-          <span style="font-size: 11px; color: var(--ink-muted);">${loc.tag || ''}</span>
+          <span style="font-size: 11px; color: var(--ink-muted);">🚶 走路 ${getLocWalkTime(loc)} 分鐘</span>
         </div>
-        <div style="height: 110px; background: #fff; border: 2px solid var(--border-hand); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden;">
-          <div style="width: 70px; height: 70px;">${illSvg}</div>
+        <div style="height: 95px; background: #fff; border: 2px dashed var(--border-hand); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; overflow: hidden;">
+          ${photoContent}
         </div>
-        <h4 style="font-family: var(--font-serif); font-size: 16px; color: var(--ink-brown); margin-bottom: 4px;">
-          ${loc.name}
+        <h4 style="font-family: var(--font-serif); font-size: 16px; color: var(--ink-brown); text-align: center; margin-bottom: 4px;">
+          〔 ${loc.name} 〕
         </h4>
-        <div style="font-size: 12px; color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px;">
-          招牌：${loc.signature || '在地推薦'}
+        <div style="font-size: 11px; background: #fffde7; border: 1px solid #fbc02d; padding: 3px 6px; border-radius: 6px; margin-bottom: 3px; color: #5d4037; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          😊 友善：${getLocFriendlyFeatures(loc)}
         </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-light); border-top: 1px dashed #ddd; padding-top: 6px;">
-          <span>♿ ${loc.accessibility?.stepText || '無障礙'}</span>
-          <span style="color: var(--food-primary); font-weight: 700;">點擊翻轉 3D 卡片 ➔</span>
+        <div style="font-size: 11px; background: #f3e5f5; border: 1px solid #ab47bc; padding: 3px 6px; border-radius: 6px; margin-bottom: 6px; color: #4a148c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+          💼 任務：${getLocJobTasks(loc)}
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--ink-light); border-top: 1px dashed #ddd; padding-top: 5px;">
+          <span>🎯 ISP：${(getLocPracticeGoals(loc)).slice(0, 10)}...</span>
+          <span style="color: var(--food-primary); font-weight: 700;">點擊查看卡片 ➔</span>
         </div>
       `;
 
@@ -648,7 +727,65 @@
     const locs = state.communityData.locations || [];
     const mode = state.printMode;
 
-    if (mode === 'cards_front' || mode === 'cards_back') {
+    if (mode === 'cards_front' || mode === 'cards_back' || mode === 'cards_blank') {
+      if (mode === 'cards_blank') {
+        // 空白盤點資源卡排版 (產生 1 頁共 4 張空白範本卡，供學員外出攜帶手寫與盤點)
+        const sheet = document.createElement('div');
+        sheet.className = 'a4-print-sheet';
+
+        const grid4 = document.createElement('div');
+        grid4.className = 'a4-grid-4up';
+
+        for (let i = 1; i <= 4; i++) {
+          const cardBox = document.createElement('div');
+          cardBox.className = 'card-print-box';
+          cardBox.innerHTML = `
+            <!-- 裁切十字線與打孔標記 -->
+            <div class="crop-cross crop-tl"></div>
+            <div class="crop-cross crop-tr"></div>
+            <div class="crop-cross crop-bl"></div>
+            <div class="crop-cross crop-br"></div>
+            <div class="hole-punch-guide" title="打孔定位">○</div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-size: 9.5px; font-weight: 900; border: 1px solid #333; padding: 1px 5px; border-radius: 4px;">預定編號：_______</span>
+              <span style="font-size: 9px; border: 1px solid #333; padding: 1px 4px; border-radius: 4px;">類別: [ ]飲食 [ ]購物 [ ]醫療 [ ]休閒 [ ]交通</span>
+            </div>
+
+            <h3 style="font-family: var(--font-serif); font-size: 15px; color: #222; text-align: center; margin: 2px 0 4px;">〔 地點名稱：____________________ 〕</h3>
+
+            <div style="height: 60px; border: 1.5px dashed #666; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 4px; color: #777; font-size: 10px; font-weight: 700;">
+              📷 貼店面實拍外觀照片 / 🎨 學員手繪框
+            </div>
+
+            <div style="font-size: 9.5px; line-height: 1.3; margin-bottom: 4px;">
+              <div>📍 <strong>地址 / 怎麼走：</strong>從機構走路約 <u>______</u> 分鐘</div>
+              <div>🕒 <strong>營業時間：</strong>________________ (公休:每週___)</div>
+              <div>📞 <strong>電話：</strong>_________________________________</div>
+            </div>
+
+            <div style="background: #fffde7; border: 1px solid #fbc02d; border-radius: 5px; padding: 3px 5px; font-size: 9px; margin-bottom: 3px; color: #5d4037;">
+              <strong>😊 友善特色盤點：</strong><br>
+              [ ]耐心等待  [ ]無障礙廁所  [ ]友善招呼  [ ]其他:__________
+            </div>
+
+            <div style="background: #e0f2f1; border: 1px solid #26a69a; border-radius: 5px; padding: 3px 5px; font-size: 9px; margin-bottom: 3px; color: #004d40;">
+              <strong>🎯 適合練習的目標 (ISP)：</strong><br>
+              [ ]練習付款算錢  [ ]排隊等待  [ ]點餐表達  [ ]其他:__________
+            </div>
+
+            <div style="background: #f3e5f5; border: 1px solid #ab47bc; border-radius: 5px; padding: 3px 5px; font-size: 9px; color: #4a148c;">
+              <strong>💼 可分配的工作內容 (學員分工)：</strong><br>
+              [ ]採買組長  [ ]付款算錢員  [ ]拍攝記錄員  [ ]禮貌大使
+            </div>
+          `;
+          grid4.appendChild(cardBox);
+        }
+
+        sheet.appendChild(grid4);
+        container.appendChild(sheet);
+        return;
+      }
       // 4-up 雙面資源卡排版 (每頁 4 張 A6)
       const isBack = mode === 'cards_back';
       const pagesCount = Math.ceil(locs.length / 4);
@@ -665,14 +802,20 @@
           const cardBox = document.createElement('div');
           cardBox.className = 'card-print-box';
 
-          const isFood = loc.category === 'food';
-          const badgeClass = isFood ? 'food' : 'spot';
+          const catName = getLocCategoryName(loc.category);
+          const isFoodOrShop = loc.category === 'food' || loc.category === 'shop';
+          const badgeClass = isFoodOrShop ? 'food' : 'spot';
           const illSvg = (loc.illKey && HANDDRAWN_ILLUSTRATIONS[loc.illKey]) 
             ? HANDDRAWN_ILLUSTRATIONS[loc.illKey].svg 
             : HANDDRAWN_ILLUSTRATIONS.spot_temple.svg;
 
           if (!isBack) {
-            // 正面排版
+            // 正面排版 (對照照片 2 範本卡片結構)
+            const walkTime = getLocWalkTime(loc);
+            const friendly = getLocFriendlyFeatures(loc);
+            const goals = getLocPracticeGoals(loc);
+            const jobs = getLocJobTasks(loc);
+
             cardBox.innerHTML = `
               <!-- 裁切十字線與打孔標記 -->
               <div class="crop-cross crop-tl"></div>
@@ -681,17 +824,35 @@
               <div class="crop-cross crop-br"></div>
               <div class="hole-punch-guide" title="打孔定位">○</div>
 
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <span class="card-badge-id ${badgeClass}" style="font-size: 11px; padding: 2px 8px;">#${loc.code} ${isFood ? '美食' : '景點'}</span>
-                <span style="font-size: 11px; border: 1px solid #333; padding: 1px 6px; border-radius: 6px;">${loc.tag || '社區資源'}</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span class="card-badge-id ${badgeClass}" style="font-size: 10px; padding: 1px 6px;">#${loc.code} ${catName}</span>
+                <span style="font-size: 10px; border: 1px solid #333; padding: 1px 5px; border-radius: 4px;">${loc.tag || catName}</span>
               </div>
-              <h3 style="font-family: var(--font-serif); font-size: 18px; color: #222; margin: 4px 0 8px;">${loc.name}</h3>
-              <div style="flex: 1; border: 2px solid #222; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #fafafa; padding: 8px;">
-                <div style="width: 75px; height: 75px;">${illSvg}</div>
+
+              <h3 style="font-family: var(--font-serif); font-size: 16px; color: #222; text-align: center; margin: 2px 0 6px;">〔 ${loc.name} 〕</h3>
+
+              <div style="height: 65px; border: 1.5px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 4px;">
+                ${loc.photoUrl 
+                  ? `<img src="${loc.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${loc.name}">`
+                  : `<div style="font-size: 10.5px; color: #666; font-weight: 700; text-align: center;">📷 放店面外觀照片</div>`
+                }
               </div>
-              <div style="display: flex; justify-content: space-between; font-size: 10px; margin-top: 6px; border-top: 1px dashed #666; padding-top: 4px;">
-                <span>對照地圖編號：${loc.code}</span>
-                <span>手繪社區旅行地圖</span>
+
+              <div style="font-size: 9.5px; line-height: 1.3; margin-bottom: 4px;">
+                <div>📍 <strong>地址 / 怎麼走：</strong>從機構走路約 <u>${walkTime}</u> 分鐘 (${loc.address || '—'})</div>
+                <div>🕒 <strong>營業時間：</strong>${loc.hours || '請洽店家'} ${loc.offDay ? '('+loc.offDay+')' : ''}</div>
+              </div>
+
+              <div style="background: #fffde7; border: 1px solid #fbc02d; border-radius: 5px; padding: 3px 5px; font-size: 9.5px; margin-bottom: 3px; color: #5d4037;">
+                <strong>😊 友善特色：</strong>${friendly}
+              </div>
+
+              <div style="background: #e0f2f1; border: 1px solid #26a69a; border-radius: 5px; padding: 3px 5px; font-size: 9.5px; margin-bottom: 3px; color: #004d40;">
+                <strong>🎯 適合練習的目標：</strong>${goals}
+              </div>
+
+              <div style="background: #f3e5f5; border: 1px solid #ab47bc; border-radius: 5px; padding: 3px 5px; font-size: 9.5px; color: #4a148c;">
+                <strong>💼 可分配的工作內容：</strong>${jobs}
               </div>
             `;
           } else {
@@ -705,7 +866,7 @@
 
               <div style="display: flex; justify-content: space-between; border-bottom: 1.5px solid #222; padding-bottom: 4px; margin-bottom: 6px;">
                 <span style="font-weight: 900; font-size: 13px;">${loc.name} (#${loc.code})</span>
-                <span style="font-size: 10px;">反面・資源盤點</span>
+                <span style="font-size: 10px;">反面・無障礙盤點</span>
               </div>
               <div style="font-size: 10.5px; line-height: 1.4; margin-bottom: 6px;">
                 <div><strong>地址：</strong>${loc.address || '—'}</div>
@@ -713,10 +874,10 @@
                 <div><strong>電話：</strong>${loc.phone || '—'}</div>
               </div>
               <div style="border: 1px solid #666; border-radius: 6px; padding: 4px; font-size: 10px; margin-bottom: 6px; background: #fdfdfd;">
-                <strong>♿ 無障礙盤點：</strong>
-                <div>• 門口：${loc.accessibility?.stepText || '平坦無階'}</div>
-                <div>• 通道：${loc.accessibility?.passageText || '寬敞輪椅友善'}</div>
-                <div>• 廁所：${loc.accessibility?.toiletText || '友善廁所'}</div>
+                <strong>♿ 無障礙與友善盤點：</strong>
+                <div>• 門口高低：${loc.accessibility?.stepText || '平坦無階'}</div>
+                <div>• 輪椅通道：${loc.accessibility?.passageText || '寬敞輪椅友善'}</div>
+                <div>• 洗手間：${loc.accessibility?.toiletText || '友善廁所'}</div>
               </div>
               <div style="font-size: 10px; background: #fff8e1; border: 1px dashed #d7ccc8; border-radius: 6px; padding: 4px; flex: 1;">
                 <strong>招牌故事：</strong>${loc.signature || ''}。${(loc.story || '').slice(0, 50)}...
@@ -741,7 +902,7 @@
         </h3>
         <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10mm 6mm; text-align: center;">
           ${locs.map(loc => {
-            const isFood = loc.category === 'food';
+            const isFood = loc.category === 'food' || loc.category === 'shop';
             const color = isFood ? '#e65100' : '#00838f';
             return `
               <div style="display: flex; flex-direction: column; align-items: center; border: 1px dashed #ccc; padding: 6px; border-radius: 8px;">
@@ -842,21 +1003,26 @@
     form.reset();
 
     if (loc) {
-      document.getElementById('editModalTitle').textContent = '✏️ 編輯點位資料';
+      document.getElementById('editModalTitle').textContent = '✏️ 編輯點位資料與雙面資源卡';
       document.getElementById('formName').value = loc.name || '';
       document.getElementById('formCategory').value = loc.category || 'food';
       document.getElementById('formCode').value = loc.code || '';
       document.getElementById('formTag').value = loc.tag || '';
+      document.getElementById('formWalkTime').value = loc.walkTime || '';
+      document.getElementById('formPhotoUrl').value = loc.photoUrl || '';
       document.getElementById('formAddress').value = loc.address || '';
       document.getElementById('formHours').value = loc.hours || '';
       document.getElementById('formOffDay').value = loc.offDay || '';
       document.getElementById('formPhone').value = loc.phone || '';
       document.getElementById('formIllKey').value = loc.illKey || 'food_duck_noodles';
+      document.getElementById('formFriendlyFeatures').value = loc.friendlyFeatures || '';
+      document.getElementById('formPracticeGoals').value = loc.practiceGoals || '';
+      document.getElementById('formJobTasks').value = loc.jobTasks || '';
       document.getElementById('formSignature').value = loc.signature || '';
       document.getElementById('formStory').value = loc.story || '';
       form.dataset.editId = loc.id;
     } else {
-      document.getElementById('editModalTitle').textContent = '➕ 新增社區美食或景點點位';
+      document.getElementById('editModalTitle').textContent = '➕ 新增社區資源點位與雙面卡片';
       delete form.dataset.editId;
       
       // 自動給予新編號
@@ -883,11 +1049,16 @@
       category: document.getElementById('formCategory').value,
       code: document.getElementById('formCode').value.trim(),
       tag: document.getElementById('formTag').value.trim(),
+      walkTime: document.getElementById('formWalkTime').value.trim(),
+      photoUrl: document.getElementById('formPhotoUrl').value.trim(),
       address: document.getElementById('formAddress').value.trim(),
       hours: document.getElementById('formHours').value.trim(),
       offDay: document.getElementById('formOffDay').value.trim(),
       phone: document.getElementById('formPhone').value.trim(),
       illKey: document.getElementById('formIllKey').value,
+      friendlyFeatures: document.getElementById('formFriendlyFeatures').value.trim(),
+      practiceGoals: document.getElementById('formPracticeGoals').value.trim(),
+      jobTasks: document.getElementById('formJobTasks').value.trim(),
       signature: document.getElementById('formSignature').value.trim(),
       story: document.getElementById('formStory').value.trim(),
       x: 500 + (Math.random() * 80 - 40),
