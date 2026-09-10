@@ -982,44 +982,145 @@ body {
   box-sizing: border-box;
 }
 
-/* 列印動態字體放大級別 */
-.a4-print-sheet.font-size-large .card-print-box {
-  font-size: 11pt !important;
-}
-.a4-print-sheet.font-size-large .card-print-box h3 {
-  font-size: 17pt !important;
-}
-.a4-print-sheet.font-size-large .card-print-box div {
-  font-size: 10.5pt !important;
-  line-height: 1.35 !important;
-}
-
-.a4-print-sheet.font-size-xlarge .card-print-box {
-  font-size: 12.5pt !important;
-}
-.a4-print-sheet.font-size-xlarge .card-print-box h3 {
-  font-size: 19pt !important;
-}
-.a4-print-sheet.font-size-xlarge .card-print-box div {
-  font-size: 12pt !important;
-  line-height: 1.4 !important;
-}
-
+/* 列印動態字體放大級別與彈性排版 */
 .a4-grid-4up {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 8mm;
+  gap: 6mm;
   height: 277mm;
+  box-sizing: border-box;
 }
 
 .card-print-box {
   border: 2px dashed #999;
   border-radius: 8px;
-  padding: 6mm;
+  padding: 4mm 5mm;
   position: relative;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.card-print-photo-frame {
+  height: 48px;
+  border: 1.5px dashed #555;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  overflow: hidden;
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+
+.card-print-info {
+  font-size: 10.5px;
+  line-height: 1.25;
+  margin-bottom: 3px;
+  flex-shrink: 0;
+}
+
+.card-print-box-yellow {
+  background: #fffde7;
+  border: 1.5px solid #fbc02d;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 10px;
+  line-height: 1.22;
+  margin-bottom: 3px;
+  color: #5d4037;
+}
+
+.card-print-box-green {
+  background: #e0f2f1;
+  border: 1.5px solid #26a69a;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 10px;
+  line-height: 1.22;
+  margin-bottom: 3px;
+  color: #004d40;
+}
+
+.card-print-box-purple {
+  background: #f3e5f5;
+  border: 1.5px solid #ab47bc;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 10px;
+  line-height: 1.22;
+  color: #4a148c;
+}
+
+/* 浮動快速編輯按鈕 (列印畫面專用) */
+.btn-card-inline-edit {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: var(--food-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  z-index: 10;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.btn-card-inline-edit:hover {
+  transform: scale(1.08);
+  background: #d84315;
+}
+
+/* 放大字體級別 */
+.a4-print-sheet.font-size-large .card-print-photo-frame {
+  height: 38px;
+}
+.a4-print-sheet.font-size-large .card-print-box h3 {
+  font-size: 15px !important;
+  margin: 1px 0 2px !important;
+}
+.a4-print-sheet.font-size-large .card-print-info {
+  font-size: 10px !important;
+  line-height: 1.2 !important;
+  margin-bottom: 2px !important;
+}
+.a4-print-sheet.font-size-large .card-print-box-yellow,
+.a4-print-sheet.font-size-large .card-print-box-green,
+.a4-print-sheet.font-size-large .card-print-box-purple {
+  font-size: 9.8px !important;
+  line-height: 1.2 !important;
+  padding: 2px 5px !important;
+  margin-bottom: 2px !important;
+}
+
+.a4-print-sheet.font-size-xlarge .card-print-photo-frame {
+  height: 30px;
+}
+.a4-print-sheet.font-size-xlarge .card-print-box h3 {
+  font-size: 15.5px !important;
+  margin: 1px 0 2px !important;
+}
+.a4-print-sheet.font-size-xlarge .card-print-info {
+  font-size: 10.5px !important;
+  line-height: 1.2 !important;
+  margin-bottom: 2px !important;
+}
+.a4-print-sheet.font-size-xlarge .card-print-box-yellow,
+.a4-print-sheet.font-size-xlarge .card-print-box-green,
+.a4-print-sheet.font-size-xlarge .card-print-box-purple {
+  font-size: 10.5px !important;
+  line-height: 1.2 !important;
+  padding: 2px 4px !important;
+  margin-bottom: 2px !important;
 }
 
 /* 裁切十字線與打孔定位圈 */

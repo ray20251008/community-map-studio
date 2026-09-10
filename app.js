@@ -892,34 +892,37 @@
               <div class="crop-cross crop-br"></div>
               <div class="hole-punch-guide" title="打孔定位">○</div>
 
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span class="card-badge-id ${badgeClass}" style="font-size: 11px; padding: 1px 7px;">#${loc.code} ${catName}</span>
-                <span style="font-size: 11px; border: 1.5px solid #333; padding: 1px 6px; border-radius: 4px; font-weight: 700;">${loc.tag || catName}</span>
+              <!-- 浮動快速編輯按鈕 (列印時會自動隱藏) -->
+              <button type="button" class="btn-card-inline-edit no-print" data-loc-id="${loc.id}" title="點擊編輯這張卡片的內文">✏️ 編輯內文</button>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; padding-right: 68px;">
+                <span class="card-badge-id ${badgeClass}" style="font-size: 10.5px; padding: 1px 7px;">#${loc.code} ${catName}</span>
+                <span style="font-size: 10.5px; border: 1.5px solid #333; padding: 1px 6px; border-radius: 4px; font-weight: 700;">${loc.tag || catName}</span>
               </div>
 
-              <h3 style="font-family: var(--font-serif); font-size: 17px; font-weight: 900; color: #111; text-align: center; margin: 3px 0 5px;">〔 ${loc.name} 〕</h3>
+              <h3 style="font-family: var(--font-serif); font-size: 16px; font-weight: 900; color: #111; text-align: center; margin: 2px 0 4px;">〔 ${loc.name} 〕</h3>
 
-              <div style="height: 65px; border: 1.5px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 5px;">
+              <div class="card-print-photo-frame">
                 ${loc.photoUrl 
                   ? `<img src="${loc.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${loc.name}">`
-                  : `<div style="font-size: 11px; color: #555; font-weight: 700; text-align: center;">📷 店面外觀照片</div>`
+                  : `<div style="font-size: 10.5px; color: #555; font-weight: 700; text-align: center;">📷 店面外觀照片</div>`
                 }
               </div>
 
-              <div style="font-size: 11px; line-height: 1.35; margin-bottom: 5px;">
+              <div class="card-print-info">
                 <div>📍 <strong>地址 / 怎麼走：</strong>從機構走路約 <u>${walkTime}</u> 分鐘 (${loc.address || '—'})</div>
                 <div>🕒 <strong>營業時間：</strong>${loc.hours || '請洽店家'} ${loc.offDay ? '('+loc.offDay+')' : ''}</div>
               </div>
 
-              <div style="background: #fffde7; border: 1.5px solid #fbc02d; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; margin-bottom: 4px; color: #5d4037;">
+              <div class="card-print-box-yellow">
                 <strong>😊 友善特色：</strong>${friendly}
               </div>
 
-              <div style="background: #e0f2f1; border: 1.5px solid #26a69a; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; margin-bottom: 4px; color: #004d40;">
+              <div class="card-print-box-green">
                 <strong>🎯 適合練習的目標：</strong>${goals}
               </div>
 
-              <div style="background: #f3e5f5; border: 1.5px solid #ab47bc; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; color: #4a148c;">
+              <div class="card-print-box-purple">
                 <strong>💼 可分配的工作內容：</strong>${jobs}
               </div>
             `;
@@ -932,25 +935,37 @@
               <div class="crop-cross crop-br"></div>
               <div class="hole-punch-guide" title="打孔定位">○</div>
 
-              <div style="display: flex; justify-content: space-between; border-bottom: 1.5px solid #222; padding-bottom: 4px; margin-bottom: 6px;">
-                <span style="font-weight: 900; font-size: 13px;">${loc.name} (#${loc.code})</span>
+              <!-- 浮動快速編輯按鈕 -->
+              <button type="button" class="btn-card-inline-edit no-print" data-loc-id="${loc.id}" title="點擊編輯這張卡片的內文">✏️ 編輯內文</button>
+
+              <div style="display: flex; justify-content: space-between; border-bottom: 1.5px solid #222; padding-bottom: 3px; margin-bottom: 4px; padding-right: 68px;">
+                <span style="font-weight: 900; font-size: 12.5px;">${loc.name} (#${loc.code})</span>
                 <span style="font-size: 10px;">反面・無障礙盤點</span>
               </div>
-              <div style="font-size: 10.5px; line-height: 1.4; margin-bottom: 6px;">
+              <div style="font-size: 10px; line-height: 1.3; margin-bottom: 4px;">
                 <div><strong>地址：</strong>${loc.address || '—'}</div>
                 <div><strong>時間：</strong>${loc.hours || '—'} (公休: ${loc.offDay || '無'})</div>
                 <div><strong>電話：</strong>${loc.phone || '—'}</div>
               </div>
-              <div style="border: 1px solid #666; border-radius: 6px; padding: 4px; font-size: 10px; margin-bottom: 6px; background: #fdfdfd;">
+              <div style="border: 1px solid #666; border-radius: 6px; padding: 3px 5px; font-size: 9.5px; margin-bottom: 4px; background: #fdfdfd; line-height: 1.25;">
                 <strong>♿ 無障礙與友善盤點：</strong>
                 <div>• 門口高低：${loc.accessibility?.stepText || '平坦無階'}</div>
                 <div>• 輪椅通道：${loc.accessibility?.passageText || '寬敞輪椅友善'}</div>
                 <div>• 洗手間：${loc.accessibility?.toiletText || '友善廁所'}</div>
               </div>
-              <div style="font-size: 10px; background: #fff8e1; border: 1px dashed #d7ccc8; border-radius: 6px; padding: 4px; flex: 1;">
+              <div style="font-size: 9.5px; background: #fff8e1; border: 1px dashed #d7ccc8; border-radius: 6px; padding: 3px 5px; flex: 1; line-height: 1.25; overflow: hidden;">
                 <strong>招牌故事：</strong>${loc.signature || ''}。${(loc.story || '').slice(0, 50)}...
               </div>
             `;
+          }
+
+          // 綁定卡片內文快速編輯按鈕事件
+          const inlineEditBtn = cardBox.querySelector('.btn-card-inline-edit');
+          if (inlineEditBtn) {
+            inlineEditBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              openEditModal(loc);
+            });
           }
 
           grid4.appendChild(cardBox);

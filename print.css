@@ -14,6 +14,8 @@
   .nav-tabs,
   .btn-pill,
   .no-print,
+  .btn-card-inline-edit,
+  .btn-grid-edit-card,
   .main-container,
   #viewMap,
   #viewCards,
@@ -32,27 +34,35 @@
     width: 100% !important;
     min-height: auto !important;
     margin: 0 !important;
-    padding: 8mm !important;
+    padding: 5mm !important;
     box-shadow: none !important;
     border: none !important;
     page-break-after: always !important;
+    box-sizing: border-box !important;
   }
 
   .a4-grid-4up {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
     grid-template-rows: 1fr 1fr !important;
-    gap: 6mm !important;
-    height: auto !important;
+    gap: 4mm !important;
+    height: 275mm !important;
+    box-sizing: border-box !important;
   }
 
   .card-print-box {
-    border: 1.5pt solid #222 !important;
+    border: 1.5pt dashed #222 !important;
+    padding: 3.5mm 4.5mm !important;
     page-break-inside: avoid !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     box-shadow: none !important;
     background: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
 
   .card-face {

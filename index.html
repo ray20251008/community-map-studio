@@ -7,8 +7,8 @@
   <meta name="description" content="互動式手繪風社區美食景點地圖、A6/B6雙面社區資源卡產生器與實體列印排版系統，支援田野踏查教學與無障礙友善環境盤點。">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="stylesheet" href="print.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="print.css?v=5">
 </head>
 <body>
 
@@ -199,6 +199,13 @@
       <button class="btn-pill primary" onclick="window.print()">
         <span>🖨️</span> 立即列印 / 存為 PDF
       </button>
+    </div>
+
+    <!-- 💡 防裁切與文字編輯提示橫幅 -->
+    <div style="background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 10px; padding: 8px 14px; margin-bottom: 12px; font-size: 13px; color: #5d4037; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;" class="no-print">
+      <div>
+        <strong>💡 避開文字裁切小技巧：</strong>預覽畫面上每張卡片右上角皆設有 <strong>【✏️ 編輯內文】</strong> 按鈕，若發現字數過多擠壓外框，可直接點擊編輯並精簡文字；列印字體建議選擇【標準】以達到最完美的完整列印！
+      </div>
     </div>
 
     <!-- 列印預覽畫布容器 -->
@@ -547,8 +554,8 @@
   </div>
 
   <!-- JavaScript Libraries and App Logic -->
-  <script src="data/illustrations.js?v=4"></script>
-  <script src="data/tuku_sample.js?v=4"></script>
-  <script src="app.js?v=4"></script>
+  <script src="data/illustrations.js?v=5"></script>
+  <script src="data/tuku_sample.js?v=5"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
