@@ -7,8 +7,8 @@
   <meta name="description" content="互動式手繪風社區美食景點地圖、A6/B6雙面社區資源卡產生器與實體列印排版系統，支援田野踏查教學與無障礙友善環境盤點。">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="style.css?v=3">
-  <link rel="stylesheet" href="print.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="print.css?v=4">
 </head>
 <body>
 
@@ -390,15 +390,17 @@
         </div>
       </div>
 
-      <!-- 控制列按鈕 -->
-      <div class="card-modal-actions">
+      <!-- 控制列按鈕 (含即時調整字體大小按鈕) -->
+      <div class="card-modal-actions" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
         <button class="flip-toggle-btn" id="btnFlipCard">
           <span>🔄</span> 翻轉卡片 (正面 ⟷ 反面)
         </button>
+        <button class="btn-pill" id="btnModalFontSmaller" title="此卡片字體縮小">A- 縮小字體</button>
+        <button class="btn-pill primary" id="btnModalFontBigger" title="此卡片字體放大">A+ 放大字體</button>
         <button class="btn-pill" id="btnSpeechCard" title="語音朗讀介紹">
           <span>🔊</span> 語音朗讀
         </button>
-        <button class="btn-pill" id="btnEditCurrentCard" title="編輯此卡片內容">
+        <button class="btn-pill" id="btnEditCurrentCard" title="編輯此卡片與調整字型">
           <span>✏️</span> 編輯
         </button>
         <button class="btn-pill" id="btnCloseCardModal">
@@ -520,6 +522,22 @@
           <textarea id="formStory" class="form-control" rows="2" placeholder="請填寫在地歷史故事、學員訪談筆記或特色亮點..."></textarea>
         </div>
 
+        <!-- 🔤 專屬字體大小調整區塊 (使用者自訂字級需求) -->
+        <div class="form-group" style="grid-column: span 2; background: #fffde7; border: 2px solid #fbc02d; padding: 12px 16px; border-radius: 14px; margin-top: 4px;">
+          <label class="form-label" style="color: #5d4037; font-weight: 900; font-size: 15px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            🔤 自訂此卡片文字與字體大小 (Font Size Adjuster)
+          </label>
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <button type="button" class="btn-pill" id="btnFormFontSmaller" style="padding: 4px 14px; font-weight: 900;">A- 縮小</button>
+            <input type="range" id="formFontSizeRange" min="12" max="28" value="17" step="1" style="width: 150px; cursor: pointer;">
+            <span id="formFontSizeDisplay" style="font-weight: 900; font-size: 16px; color: var(--food-primary); min-width: 60px;">17 px</span>
+            <button type="button" class="btn-pill primary" id="btnFormFontBigger" style="padding: 4px 14px; font-weight: 900;">A+ 放大</button>
+          </div>
+          <div style="font-size: 12px; color: #795548; margin-top: 6px;">
+            💡 提示：調整滑桿或按 A+/A- 按鈕，可精確控制這張卡片在畫面展示與 A4 列印時的字體大小！
+          </div>
+        </div>
+
         <div style="grid-column: span 2; display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" class="btn-pill" id="btnCancelEdit">取消</button>
           <button type="submit" class="btn-pill primary">儲存點位與卡片</button>
@@ -529,8 +547,8 @@
   </div>
 
   <!-- JavaScript Libraries and App Logic -->
-  <script src="data/illustrations.js?v=3"></script>
-  <script src="data/tuku_sample.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <script src="data/illustrations.js?v=4"></script>
+  <script src="data/tuku_sample.js?v=4"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

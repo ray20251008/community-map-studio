@@ -164,6 +164,42 @@
       });
     });
 
+    // 9.6 3D 卡片彈窗快調字型大小按鈕 (A+ / A-)
+    document.getElementById('btnModalFontBigger')?.addEventListener('click', () => {
+      if (!state.selectedLocation) return;
+      const current = state.selectedLocation.customFontSize || 17;
+      state.selectedLocation.customFontSize = Math.min(30, current + 2);
+      applyCardFontSize(state.selectedLocation);
+      saveDataToLocalStorage();
+    });
+
+    document.getElementById('btnModalFontSmaller')?.addEventListener('click', () => {
+      if (!state.selectedLocation) return;
+      const current = state.selectedLocation.customFontSize || 17;
+      state.selectedLocation.customFontSize = Math.max(12, current - 2);
+      applyCardFontSize(state.selectedLocation);
+      saveDataToLocalStorage();
+    });
+
+    // 9.7 編輯表單字型大小滑桿與按鈕
+    const fontRange = document.getElementById('formFontSizeRange');
+    const fontDisplay = document.getElementById('formFontSizeDisplay');
+    if (fontRange && fontDisplay) {
+      fontRange.addEventListener('input', (e) => {
+        fontDisplay.textContent = `${e.target.value} px`;
+      });
+      document.getElementById('btnFormFontBigger')?.addEventListener('click', () => {
+        const val = Math.min(30, parseInt(fontRange.value, 10) + 2);
+        fontRange.value = val;
+        fontDisplay.textContent = `${val} px`;
+      });
+      document.getElementById('btnFormFontSmaller')?.addEventListener('click', () => {
+        const val = Math.max(12, parseInt(fontRange.value, 10) - 2);
+        fontRange.value = val;
+        fontDisplay.textContent = `${val} px`;
+      });
+    }
+
     // 10. 快速列印與社區切換
     document.getElementById('btnQuickPrint')?.addEventListener('click', () => {
       switchView('print');
@@ -532,6 +568,21 @@
     return '擔任點餐與採買組長（挑選品項）、擔任付款算錢員（交付零錢）、擔任隨行照片與紀錄員。';
   }
 
+  // 套用自訂字型大小至卡片彈窗
+  function applyCardFontSize(loc) {
+    if (!loc) return;
+    const size = loc.customFontSize || 17;
+    const frontEl = document.getElementById('modalCardFront');
+    if (frontEl) {
+      frontEl.style.fontSize = `${size}px`;
+      const title = frontEl.querySelector('.card-place-title');
+      if (title) title.style.fontSize = `${Math.round(size * 1.25)}px`;
+      frontEl.querySelectorAll('.box-content').forEach(box => {
+        box.style.fontSize = `${Math.round(size * 0.85)}px`;
+      });
+    }
+  }
+
   // ================= 3D 雙面社區資源卡控制 (Card Modal) =================
   function openLocationCard(loc) {
     state.selectedLocation = loc;
@@ -577,6 +628,9 @@
 
     const jobEl = document.getElementById('modalFrontJobTasks');
     if (jobEl) jobEl.textContent = getLocJobTasks(loc);
+
+    // 套用使用者自訂之卡片字體大小
+    applyCardFontSize(loc);
 
     // 插畫與照片展示 (對照照片 2 [ 📷 放店面照片 ])
     const illFrame = document.getElementById('modalFrontIllFrame');
@@ -1034,6 +1088,13 @@
       document.getElementById('formJobTasks').value = loc.jobTasks || '';
       document.getElementById('formSignature').value = loc.signature || '';
       document.getElementById('formStory').value = loc.story || '';
+
+      const fontSize = loc.customFontSize || 17;
+      const fontRange = document.getElementById('formFontSizeRange');
+      const fontDisplay = document.getElementById('formFontSizeDisplay');
+      if (fontRange) fontRange.value = fontSize;
+      if (fontDisplay) fontDisplay.textContent = `${fontSize} px`;
+
       form.dataset.editId = loc.id;
     } else {
       document.getElementById('editModalTitle').textContent = '➕ 新增社區資源點位與雙面卡片';
@@ -1042,6 +1103,11 @@
       // 自動給予新編號
       const count = (state.communityData.locations || []).length + 1;
       document.getElementById('formCode').value = count < 10 ? `0${count}` : `${count}`;
+
+      const fontRange = document.getElementById('formFontSizeRange');
+      const fontDisplay = document.getElementById('formFontSizeDisplay');
+      if (fontRange) fontRange.value = 17;
+      if (fontDisplay) fontDisplay.textContent = `17 px`;
     }
 
     backdrop.classList.add('open');
@@ -1056,6 +1122,9 @@
     e.preventDefault();
     const form = e.target;
     const editId = form.dataset.editId;
+
+    const fontRangeEl = document.getElementById('formFontSizeRange');
+    const customFontSize = fontRangeEl ? parseInt(fontRangeEl.value, 10) : 17;
 
     const locData = {
       id: editId || `loc_${Date.now()}`,
@@ -1075,6 +1144,7 @@
       jobTasks: document.getElementById('formJobTasks').value.trim(),
       signature: document.getElementById('formSignature').value.trim(),
       story: document.getElementById('formStory').value.trim(),
+      customFontSize: customFontSize,
       x: 500 + (Math.random() * 80 - 40),
       y: 300 + (Math.random() * 80 - 40),
       accessibility: {
