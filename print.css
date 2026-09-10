@@ -4,7 +4,7 @@
    ========================================================================== */
 
 @media print {
-  /* 隱藏所有網頁介面裝飾、導覽列與操作按鈕 */
+  /* 隱藏所有非列印面板、導覽列、互動地圖與側欄 */
   .app-header,
   .map-floating-bar,
   .zoom-controls,
@@ -13,22 +13,18 @@
   .card-modal-actions,
   .nav-tabs,
   .btn-pill,
-  .no-print {
+  .no-print,
+  .main-container,
+  #viewMap,
+  #viewCards,
+  #viewGuide {
     display: none !important;
   }
 
-  body {
-    background: #fff !important;
-    background-image: none !important;
-    color: #000 !important;
+  #viewPrint {
+    display: block !important;
     padding: 0 !important;
     margin: 0 !important;
-    font-size: 11pt;
-  }
-
-  .main-container {
-    display: block !important;
-    height: auto !important;
   }
 
   /* 雙面資源卡列印模式 (A4 4-Up) */
