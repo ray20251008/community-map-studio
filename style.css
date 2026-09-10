@@ -950,9 +950,23 @@ body {
   cursor: pointer;
 }
 
-.print-type-btn.active {
+.font-size-btn {
+  background: transparent;
+  border: 1.5px solid #bbb;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-family: var(--font-hand);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink-brown);
+  transition: all 0.2s ease;
+}
+
+.font-size-btn.active {
   background: var(--ink-brown);
   color: #fff;
+  border-color: var(--ink-brown);
 }
 
 /* 4-up 雙面資源卡排版容器 (A4 預覽) */
@@ -966,6 +980,29 @@ body {
   border: 1px solid #ddd;
   position: relative;
   box-sizing: border-box;
+}
+
+/* 列印動態字體放大級別 */
+.a4-print-sheet.font-size-large .card-print-box {
+  font-size: 11pt !important;
+}
+.a4-print-sheet.font-size-large .card-print-box h3 {
+  font-size: 17pt !important;
+}
+.a4-print-sheet.font-size-large .card-print-box div {
+  font-size: 10.5pt !important;
+  line-height: 1.35 !important;
+}
+
+.a4-print-sheet.font-size-xlarge .card-print-box {
+  font-size: 12.5pt !important;
+}
+.a4-print-sheet.font-size-xlarge .card-print-box h3 {
+  font-size: 19pt !important;
+}
+.a4-print-sheet.font-size-xlarge .card-print-box div {
+  font-size: 12pt !important;
+  line-height: 1.4 !important;
 }
 
 .a4-grid-4up {

@@ -15,8 +15,9 @@
     searchQuery: '',
     selectedLocation: null,
     isCardFlipped: false,
-    printMode: 'cards_front', // 'cards_front' | 'cards_back' | 'poster_map' | 'stickers' | 'worksheet'
-    
+    printMode: 'cards_front', // 'cards_front' | 'cards_back' | 'cards_blank' | 'poster_map' | 'stickers' | 'worksheet'
+    cardFontSize: 'large', // 'normal' | 'large' | 'xlarge'
+
     // 地圖平移與縮放視角
     zoom: 1,
     panX: 0,
@@ -149,6 +150,16 @@
         document.querySelectorAll('.print-type-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         state.printMode = btn.dataset.printMode;
+        renderPrintPreview();
+      });
+    });
+
+    // 9.5. 列印字體大小切換
+    document.querySelectorAll('.font-size-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.font-size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.cardFontSize = btn.dataset.fontSize;
         renderPrintPreview();
       });
     });
@@ -728,10 +739,12 @@
     const mode = state.printMode;
 
     if (mode === 'cards_front' || mode === 'cards_back' || mode === 'cards_blank') {
+      const fontSizeClass = `font-size-${state.cardFontSize || 'large'}`;
+
       if (mode === 'cards_blank') {
         // 空白盤點資源卡排版 (產生 1 頁共 4 張空白範本卡，供學員外出攜帶手寫與盤點)
         const sheet = document.createElement('div');
-        sheet.className = 'a4-print-sheet';
+        sheet.className = `a4-print-sheet ${fontSizeClass}`;
 
         const grid4 = document.createElement('div');
         grid4.className = 'a4-grid-4up';
@@ -748,33 +761,33 @@
             <div class="hole-punch-guide" title="打孔定位">○</div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <span style="font-size: 9.5px; font-weight: 900; border: 1px solid #333; padding: 1px 5px; border-radius: 4px;">預定編號：_______</span>
-              <span style="font-size: 9px; border: 1px solid #333; padding: 1px 4px; border-radius: 4px;">類別: [ ]飲食 [ ]購物 [ ]醫療 [ ]休閒 [ ]交通</span>
+              <span style="font-size: 11px; font-weight: 900; border: 1.5px solid #333; padding: 1px 6px; border-radius: 4px;">預定編號：_______</span>
+              <span style="font-size: 10.5px; font-weight: 700; border: 1.5px solid #333; padding: 1px 5px; border-radius: 4px;">類別: [ ]飲食 [ ]購物 [ ]醫療 [ ]休閒 [ ]交通</span>
             </div>
 
-            <h3 style="font-family: var(--font-serif); font-size: 15px; color: #222; text-align: center; margin: 2px 0 4px;">〔 地點名稱：____________________ 〕</h3>
+            <h3 style="font-family: var(--font-serif); font-size: 17px; font-weight: 900; color: #111; text-align: center; margin: 3px 0 5px;">〔 地點名稱：____________________ 〕</h3>
 
-            <div style="height: 60px; border: 1.5px dashed #666; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 4px; color: #777; font-size: 10px; font-weight: 700;">
+            <div style="height: 65px; border: 1.5px dashed #444; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 5px; color: #555; font-size: 11px; font-weight: 700;">
               📷 貼店面實拍外觀照片 / 🎨 學員手繪框
             </div>
 
-            <div style="font-size: 9.5px; line-height: 1.3; margin-bottom: 4px;">
+            <div style="font-size: 11px; line-height: 1.4; margin-bottom: 5px; font-weight: 600;">
               <div>📍 <strong>地址 / 怎麼走：</strong>從機構走路約 <u>______</u> 分鐘</div>
               <div>🕒 <strong>營業時間：</strong>________________ (公休:每週___)</div>
               <div>📞 <strong>電話：</strong>_________________________________</div>
             </div>
 
-            <div style="background: #fffde7; border: 1px solid #fbc02d; border-radius: 5px; padding: 3px 5px; font-size: 9px; margin-bottom: 3px; color: #5d4037;">
+            <div style="background: #fffde7; border: 1.5px solid #fbc02d; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; margin-bottom: 4px; color: #5d4037;">
               <strong>😊 友善特色盤點：</strong><br>
               [ ]耐心等待  [ ]無障礙廁所  [ ]友善招呼  [ ]其他:__________
             </div>
 
-            <div style="background: #e0f2f1; border: 1px solid #26a69a; border-radius: 5px; padding: 3px 5px; font-size: 9px; margin-bottom: 3px; color: #004d40;">
+            <div style="background: #e0f2f1; border: 1.5px solid #26a69a; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; margin-bottom: 4px; color: #004d40;">
               <strong>🎯 適合練習的目標 (ISP)：</strong><br>
               [ ]練習付款算錢  [ ]排隊等待  [ ]點餐表達  [ ]其他:__________
             </div>
 
-            <div style="background: #f3e5f5; border: 1px solid #ab47bc; border-radius: 5px; padding: 3px 5px; font-size: 9px; color: #4a148c;">
+            <div style="background: #f3e5f5; border: 1.5px solid #ab47bc; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; color: #4a148c;">
               <strong>💼 可分配的工作內容 (學員分工)：</strong><br>
               [ ]採買組長  [ ]付款算錢員  [ ]拍攝記錄員  [ ]禮貌大使
             </div>
@@ -786,13 +799,14 @@
         container.appendChild(sheet);
         return;
       }
+
       // 4-up 雙面資源卡排版 (每頁 4 張 A6)
       const isBack = mode === 'cards_back';
       const pagesCount = Math.ceil(locs.length / 4);
 
       for (let p = 0; p < pagesCount; p++) {
         const sheet = document.createElement('div');
-        sheet.className = 'a4-print-sheet';
+        sheet.className = `a4-print-sheet ${fontSizeClass}`;
 
         const grid4 = document.createElement('div');
         grid4.className = 'a4-grid-4up';
@@ -825,33 +839,33 @@
               <div class="hole-punch-guide" title="打孔定位">○</div>
 
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span class="card-badge-id ${badgeClass}" style="font-size: 10px; padding: 1px 6px;">#${loc.code} ${catName}</span>
-                <span style="font-size: 10px; border: 1px solid #333; padding: 1px 5px; border-radius: 4px;">${loc.tag || catName}</span>
+                <span class="card-badge-id ${badgeClass}" style="font-size: 11px; padding: 1px 7px;">#${loc.code} ${catName}</span>
+                <span style="font-size: 11px; border: 1.5px solid #333; padding: 1px 6px; border-radius: 4px; font-weight: 700;">${loc.tag || catName}</span>
               </div>
 
-              <h3 style="font-family: var(--font-serif); font-size: 16px; color: #222; text-align: center; margin: 2px 0 6px;">〔 ${loc.name} 〕</h3>
+              <h3 style="font-family: var(--font-serif); font-size: 17px; font-weight: 900; color: #111; text-align: center; margin: 3px 0 5px;">〔 ${loc.name} 〕</h3>
 
-              <div style="height: 65px; border: 1.5px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 4px;">
+              <div style="height: 65px; border: 1.5px dashed #444; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: #fafafa; overflow: hidden; margin-bottom: 5px;">
                 ${loc.photoUrl 
                   ? `<img src="${loc.photoUrl}" style="width:100%;height:100%;object-fit:cover;" alt="${loc.name}">`
-                  : `<div style="font-size: 10.5px; color: #666; font-weight: 700; text-align: center;">📷 放店面外觀照片</div>`
+                  : `<div style="font-size: 11px; color: #555; font-weight: 700; text-align: center;">📷 店面外觀照片</div>`
                 }
               </div>
 
-              <div style="font-size: 9.5px; line-height: 1.3; margin-bottom: 4px;">
+              <div style="font-size: 11px; line-height: 1.35; margin-bottom: 5px;">
                 <div>📍 <strong>地址 / 怎麼走：</strong>從機構走路約 <u>${walkTime}</u> 分鐘 (${loc.address || '—'})</div>
                 <div>🕒 <strong>營業時間：</strong>${loc.hours || '請洽店家'} ${loc.offDay ? '('+loc.offDay+')' : ''}</div>
               </div>
 
-              <div style="background: #fffde7; border: 1px solid #fbc02d; border-radius: 5px; padding: 3px 5px; font-size: 9.5px; margin-bottom: 3px; color: #5d4037;">
+              <div style="background: #fffde7; border: 1.5px solid #fbc02d; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; margin-bottom: 4px; color: #5d4037;">
                 <strong>😊 友善特色：</strong>${friendly}
               </div>
 
-              <div style="background: #e0f2f1; border: 1px solid #26a69a; border-radius: 5px; padding: 3px 5px; font-size: 9.5px; margin-bottom: 3px; color: #004d40;">
+              <div style="background: #e0f2f1; border: 1.5px solid #26a69a; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; margin-bottom: 4px; color: #004d40;">
                 <strong>🎯 適合練習的目標：</strong>${goals}
               </div>
 
-              <div style="background: #f3e5f5; border: 1px solid #ab47bc; border-radius: 5px; padding: 3px 5px; font-size: 9.5px; color: #4a148c;">
+              <div style="background: #f3e5f5; border: 1.5px solid #ab47bc; border-radius: 6px; padding: 4px 6px; font-size: 10.5px; color: #4a148c;">
                 <strong>💼 可分配的工作內容：</strong>${jobs}
               </div>
             `;

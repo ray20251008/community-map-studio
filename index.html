@@ -7,8 +7,8 @@
   <meta name="description" content="互動式手繪風社區美食景點地圖、A6/B6雙面社區資源卡產生器與實體列印排版系統，支援田野踏查教學與無障礙友善環境盤點。">
   
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="style.css?v=2">
-  <link rel="stylesheet" href="print.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="print.css?v=3">
 </head>
 <body>
 
@@ -176,15 +176,26 @@
 
   <!-- ================= 視圖三：實體列印排版模式 (A4 4-Up, 海報, 圓貼, 學習單) ================= -->
   <section class="view-panel" id="viewPrint">
-    <div class="print-options-toolbar">
-      <div class="print-type-select">
-        <button class="print-type-btn active" data-print-mode="cards_front">📇 資源卡【正面】(A4 4-Up)</button>
-        <button class="print-type-btn" data-print-mode="cards_back">📝 資源卡【反面盤點】(A4 4-Up)</button>
-        <button class="print-type-btn" data-print-mode="cards_blank">✏️ 空白盤點資源卡 (A4 4-Up 外出攜帶)</button>
-        <button class="print-type-btn" data-print-mode="poster_map">🗺️ 海報大地圖 (A3/全開)</button>
-        <button class="print-type-btn" data-print-mode="stickers">🏷️ 點位編號圓貼紙</button>
-        <button class="print-type-btn" data-print-mode="worksheet">📋 田野踏查學習單</button>
+    <div class="print-options-toolbar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <div class="print-type-select">
+          <button class="print-type-btn active" data-print-mode="cards_front">📇 資源卡【正面】(A4 4-Up)</button>
+          <button class="print-type-btn" data-print-mode="cards_back">📝 資源卡【反面盤點】(A4 4-Up)</button>
+          <button class="print-type-btn" data-print-mode="cards_blank">✏️ 空白盤點資源卡 (A4 4-Up 外出攜帶)</button>
+          <button class="print-type-btn" data-print-mode="poster_map">🗺️ 海報大地圖 (A3/全開)</button>
+          <button class="print-type-btn" data-print-mode="stickers">🏷️ 點位編號圓貼紙</button>
+          <button class="print-type-btn" data-print-mode="worksheet">📋 田野踏查學習單</button>
+        </div>
+
+        <!-- 🔍 列印字體大小控制鈕 -->
+        <div class="font-size-toolbar" style="display: flex; align-items: center; gap: 4px; background: #fff; padding: 4px 10px; border-radius: 20px; border: 2px solid var(--border-hand); box-shadow: 2px 2px 0 var(--border-hand);">
+          <span style="font-size: 13px; font-weight: 900; color: var(--ink-brown);">🔤 列印字體：</span>
+          <button class="font-size-btn" data-font-size="normal">標準</button>
+          <button class="font-size-btn active" data-font-size="large">放大 (+20%)</button>
+          <button class="font-size-btn" data-font-size="xlarge">特大 (+40%)</button>
+        </div>
       </div>
+
       <button class="btn-pill primary" onclick="window.print()">
         <span>🖨️</span> 立即列印 / 存為 PDF
       </button>
@@ -518,8 +529,8 @@
   </div>
 
   <!-- JavaScript Libraries and App Logic -->
-  <script src="data/illustrations.js?v=2"></script>
-  <script src="data/tuku_sample.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="data/illustrations.js?v=3"></script>
+  <script src="data/tuku_sample.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
