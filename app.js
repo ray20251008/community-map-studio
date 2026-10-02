@@ -218,6 +218,29 @@
     document.getElementById('cardsGridSearch')?.addEventListener('input', (e) => {
       renderCardsGrid(e.target.value.trim().toLowerCase());
     });
+
+    // 12. 選擇本機照片與移除照片事件
+    const photoFileInput = document.getElementById('formPhotoFile');
+    if (photoFileInput) {
+      photoFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          compressAndReadImage(file, (dataUrl) => {
+            document.getElementById('formPhotoUrl').value = dataUrl;
+            updatePhotoPreview(dataUrl);
+          });
+        }
+      });
+    }
+
+    const btnClearPhoto = document.getElementById('btnClearPhoto');
+    if (btnClearPhoto) {
+      btnClearPhoto.addEventListener('click', () => {
+        document.getElementById('formPhotoUrl').value = '';
+        if (photoFileInput) photoFileInput.value = '';
+        updatePhotoPreview('');
+      });
+    }
   }
 
   // ================= 視圖切換 =================
@@ -1077,6 +1100,52 @@
     }
   }
 
+  // ================= 圖片預覽與自動壓縮助手 =================
+  function updatePhotoPreview(url) {
+    const container = document.getElementById('photoPreviewContainer');
+    const img = document.getElementById('photoPreviewImg');
+    const clearBtn = document.getElementById('btnClearPhoto');
+    if (url) {
+      if (img) img.src = url;
+      if (container) container.style.display = 'block';
+      if (clearBtn) clearBtn.style.display = 'inline-block';
+    } else {
+      if (img) img.src = '';
+      if (container) container.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
+    }
+  }
+
+  function compressAndReadImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 800;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+        callback(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   // ================= 點位新增 / 編輯表單 (Edit Modal) =================
   function openEditModal(loc) {
     const backdrop = document.getElementById('editModalBackdrop');
@@ -1085,6 +1154,12 @@
 
     form.reset();
 
+    const photoUrl = loc ? (loc.photoUrl || '') : '';
+    document.getElementById('formPhotoUrl').value = photoUrl;
+    const fileInput = document.getElementById('formPhotoFile');
+    if (fileInput) fileInput.value = '';
+    updatePhotoPreview(photoUrl);
+
     if (loc) {
       document.getElementById('editModalTitle').textContent = '✏️ 編輯點位資料與雙面資源卡';
       document.getElementById('formName').value = loc.name || '';
@@ -1092,7 +1167,6 @@
       document.getElementById('formCode').value = loc.code || '';
       document.getElementById('formTag').value = loc.tag || '';
       document.getElementById('formWalkTime').value = loc.walkTime || '';
-      document.getElementById('formPhotoUrl').value = loc.photoUrl || '';
       document.getElementById('formAddress').value = loc.address || '';
       document.getElementById('formHours').value = loc.hours || '';
       document.getElementById('formOffDay').value = loc.offDay || '';
