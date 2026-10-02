@@ -631,6 +631,12 @@
     const tagEl = document.getElementById('modalFrontTag');
     if (tagEl) tagEl.textContent = loc.tag || catLabel;
 
+    const ratingEl = document.getElementById('modalFrontRating');
+    if (ratingEl) ratingEl.textContent = '⭐'.repeat(parseInt(loc.rating, 10) || 5);
+
+    const surveyorEl = document.getElementById('modalFrontSurveyor');
+    if (surveyorEl) surveyorEl.textContent = loc.surveyor || '小組學生 (未填寫)';
+
     const titleEl = document.getElementById('modalFrontTitle');
     if (titleEl) titleEl.textContent = loc.name;
 
@@ -922,6 +928,10 @@
                 <span class="card-badge-id ${badgeClass}" style="font-size: 10.5px; padding: 1px 7px;">#${loc.code} ${catName}</span>
                 <span style="font-size: 10.5px; border: 1.5px solid #333; padding: 1px 6px; border-radius: 4px; font-weight: 700;">${loc.tag || catName}</span>
               </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; background: #eefbe7; color: #2e7d32; border: 1px dashed #a5d6a7; border-radius: 4px; padding: 1px 6px; margin-bottom: 3px; font-weight: 700;">
+                <span>✍️ 踏查小組：${loc.surveyor || '小組學生 (未填寫)'}</span>
+                <span style="color: #f57c00;">${'⭐'.repeat(parseInt(loc.rating, 10) || 5)}</span>
+              </div>
 
               <h3 style="font-family: var(--font-serif); font-size: 16px; font-weight: 900; color: #111; text-align: center; margin: 2px 0 4px;">〔 ${loc.name} 〕</h3>
 
@@ -1167,6 +1177,8 @@
       document.getElementById('formCode').value = loc.code || '';
       document.getElementById('formTag').value = loc.tag || '';
       document.getElementById('formWalkTime').value = loc.walkTime || '';
+      document.getElementById('formSurveyor').value = loc.surveyor || '';
+      document.getElementById('formRating').value = loc.rating || '5';
       document.getElementById('formAddress').value = loc.address || '';
       document.getElementById('formHours').value = loc.hours || '';
       document.getElementById('formOffDay').value = loc.offDay || '';
@@ -1188,6 +1200,8 @@
     } else {
       document.getElementById('editModalTitle').textContent = '➕ 新增社區資源點位與雙面卡片';
       delete form.dataset.editId;
+      document.getElementById('formSurveyor').value = '';
+      document.getElementById('formRating').value = '5';
       
       // 自動給予新編號
       const count = (state.communityData.locations || []).length + 1;
@@ -1222,6 +1236,8 @@
       code: document.getElementById('formCode').value.trim(),
       tag: document.getElementById('formTag').value.trim(),
       walkTime: document.getElementById('formWalkTime').value.trim(),
+      surveyor: document.getElementById('formSurveyor').value.trim(),
+      rating: document.getElementById('formRating').value,
       photoUrl: document.getElementById('formPhotoUrl').value.trim(),
       address: document.getElementById('formAddress').value.trim(),
       hours: document.getElementById('formHours').value.trim(),
